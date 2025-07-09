@@ -14,51 +14,75 @@ export class UserSeedService {
   ) {}
 
   async run() {
-    const admin = await this.model.findOne({
-      email: 'admin@nomadsoft.us',
-    });
-
-    if (!admin) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
-
-      const data = new this.model({
+    const users = [
+      {
         email: 'admin@nomadsoft.us',
-        password: password,
+        username: 'admin',
         firstName: 'Super',
         lastName: 'Admin',
-        role: {
-          _id: RoleEnum.admin.toString(),
-        },
-        status: {
-          _id: StatusEnum.active.toString(),
-        },
-      });
-      await data.save();
-    }
-
-    const user = await this.model.findOne({
-      email: 'john.doe@nomadsoft.us',
-    });
-
-    if (!user) {
-      const salt = await bcrypt.genSalt();
-      const password = await bcrypt.hash('secret', salt);
-
-      const data = new this.model({
+        role: RoleEnum.admin,
+      },
+      {
         email: 'john.doe@nomadsoft.us',
-        password: password,
+        username: 'john.doe',
         firstName: 'John',
         lastName: 'Doe',
-        role: {
-          _id: RoleEnum.user.toString(),
-        },
-        status: {
-          _id: StatusEnum.active.toString(),
-        },
+        role: RoleEnum.user,
+      },
+      {
+        email: 'jane.smith@nomadsoft.us',
+        username: 'jane.smith',
+        firstName: 'Jane',
+        lastName: 'Smith',
+        role: RoleEnum.user,
+      },
+      {
+        email: 'bob.wilson@nomadsoft.us',
+        username: 'bob.wilson',
+        firstName: 'Bob',
+        lastName: 'Wilson',
+        role: RoleEnum.user,
+      },
+      {
+        email: 'alice.brown@nomadsoft.us',
+        username: 'alice.brown',
+        firstName: 'Alice',
+        lastName: 'Brown',
+        role: RoleEnum.user,
+      },
+      {
+        email: 'charlie.davis@nomadsoft.us',
+        username: 'charlie.davis',
+        firstName: 'Charlie',
+        lastName: 'Davis',
+        role: RoleEnum.user,
+      },
+    ];
+
+    for (const userData of users) {
+      const existingUser = await this.model.findOne({
+        email: userData.email,
       });
 
-      await data.save();
+      if (!existingUser) {
+        const salt = await bcrypt.genSalt();
+        const password = await bcrypt.hash('secret', salt);
+
+        const data = new this.model({
+          email: userData.email,
+          username: userData.username,
+          password: password,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          role: {
+            _id: userData.role.toString(),
+          },
+          status: {
+            _id: StatusEnum.active.toString(),
+          },
+        });
+        await data.save();
+      }
     }
   }
 }

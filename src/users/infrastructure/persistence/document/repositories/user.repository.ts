@@ -34,10 +34,21 @@ export class UsersDocumentRepository implements UserRepository {
     paginationOptions: IPaginationOptions;
   }): Promise<User[]> {
     const where: FilterQuery<UserSchemaClass> = {};
+    
     if (filterOptions?.roles?.length) {
       where['role._id'] = {
         $in: filterOptions.roles.map((role) => role.id.toString()),
       };
+    }
+
+    if (filterOptions?.search) {
+      const searchRegex = new RegExp(filterOptions.search, 'i');
+      where.$or = [
+        { username: { $regex: searchRegex } },
+        { email: { $regex: searchRegex } },
+        { firstName: { $regex: searchRegex } },
+        { lastName: { $regex: searchRegex } },
+      ];
     }
 
     const userObjects = await this.usersModel
