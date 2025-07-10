@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   SerializeOptions,
+  Request,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -42,8 +43,11 @@ export class LeaderboardsController {
     description: 'Score submitted successfully',
     type: LeaderboardEntryDto,
   })
-  async submitScore(@Body() submitScoreDto: SubmitScoreDto) {
-    return this.leaderboardsService.submitScore(submitScoreDto);
+  async submitScore(
+    @Body() submitScoreDto: SubmitScoreDto,
+    @Request() req: any,
+  ) {
+    return this.leaderboardsService.submitScore(submitScoreDto, req.user.id);
   }
 
   @SerializeOptions({

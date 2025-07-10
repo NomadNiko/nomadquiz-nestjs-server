@@ -8,20 +8,22 @@ export abstract class LeaderboardEntryRepository {
     data: Omit<LeaderboardEntry, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<LeaderboardEntry>;
 
-  abstract findByLeaderboardAndUsername(
+  abstract findByLeaderboardAndUserId(
     leaderboardId: string,
-    username: string,
+    userId: LeaderboardEntry['userId'],
   ): Promise<NullableType<LeaderboardEntry>>;
+
 
   abstract findByLeaderboard(
     leaderboardId: string,
     paginationOptions: IPaginationOptions,
   ): Promise<LeaderboardEntry[]>;
 
-  abstract findByUsername(
-    username: string,
+  abstract findByUserId(
+    userId: LeaderboardEntry['userId'],
     paginationOptions: IPaginationOptions,
   ): Promise<LeaderboardEntry[]>;
+
 
   abstract update(
     id: LeaderboardEntry['id'],
@@ -38,4 +40,5 @@ export abstract class LeaderboardEntryRepository {
       lastActivity: Date;
     }[]
   >;
+
 }

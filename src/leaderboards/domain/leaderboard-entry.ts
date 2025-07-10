@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import databaseConfig from '../../database/config/database.config';
 import { DatabaseConfig } from '../../database/config/database-config.type';
+import { User } from '../../users/domain/user';
 
 // <database-block>
 const idType = (databaseConfig() as DatabaseConfig).isDocumentDatabase
@@ -24,11 +25,22 @@ export class LeaderboardEntry {
   leaderboardId: string;
 
   @ApiProperty({
-    type: String,
-    example: 'john_doe',
-    description: 'Username of the player',
+    type: idType,
+    description: 'ID of the user who achieved this score',
   })
-  username: string;
+  @Expose({ groups: ['admin'] })
+  userId: number | string;
+
+  @ApiProperty({
+    type: () => User,
+    description: 'User information (populated)',
+    required: false,
+  })
+  @Type(() => User)
+  @Expose({ groups: ['me', 'admin'] })
+  user?: User;
+
+  // username removed - derived from populated user object
 
   @ApiProperty({
     type: Number,

@@ -24,7 +24,7 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
     const existingEntry = await this.leaderboardEntryRepository.findOne({
       where: {
         leaderboardId: data.leaderboardId,
-        username: data.username,
+        userId: data.userId as number,
       },
     });
 
@@ -39,6 +39,7 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
 
         const updatedEntry = await this.leaderboardEntryRepository.findOne({
           where: { id: existingEntry.id },
+          relations: ['user'],
         });
 
         return LeaderboardEntryMapper.toDomain(updatedEntry!);
@@ -56,16 +57,18 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
     }
   }
 
-  async findByLeaderboardAndUsername(
+  async findByLeaderboardAndUserId(
     leaderboardId: string,
-    username: string,
+    userId: LeaderboardEntry['userId'],
   ): Promise<NullableType<LeaderboardEntry>> {
     const entity = await this.leaderboardEntryRepository.findOne({
-      where: { leaderboardId, username },
+      where: { leaderboardId, userId: userId as number },
+      relations: ['user'],
     });
 
     return entity ? LeaderboardEntryMapper.toDomain(entity) : null;
   }
+
 
   async findByLeaderboard(
     leaderboardId: string,
@@ -73,6 +76,7 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
   ): Promise<LeaderboardEntry[]> {
     const entities = await this.leaderboardEntryRepository.find({
       where: { leaderboardId },
+      relations: ['user'],
       order: {
         score: 'DESC',
         timestamp: 'ASC', // Earliest timestamp for ties
@@ -84,12 +88,13 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
     return entities.map((entity) => LeaderboardEntryMapper.toDomain(entity));
   }
 
-  async findByUsername(
-    username: string,
+  async findByUserId(
+    userId: LeaderboardEntry['userId'],
     paginationOptions: IPaginationOptions,
   ): Promise<LeaderboardEntry[]> {
     const entities = await this.leaderboardEntryRepository.find({
-      where: { username },
+      where: { userId: userId as number },
+      relations: ['user'],
       order: { timestamp: 'DESC' }, // Most recent first
       take: paginationOptions.limit,
       skip: (paginationOptions.page - 1) * paginationOptions.limit,
@@ -97,6 +102,7 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
 
     return entities.map((entity) => LeaderboardEntryMapper.toDomain(entity));
   }
+
 
   async update(
     id: LeaderboardEntry['id'],
@@ -110,9 +116,9 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
       return null;
     }
 
-    // Remove the id from payload to avoid conflicts
+    // Remove the id, userId, and user from payload to avoid conflicts
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id: _payloadId, ...updatePayload } = payload;
+    const { id: _payloadId, userId: _userId, user: _user, ...updatePayload } = payload;
 
     await this.leaderboardEntryRepository.update(Number(id), updatePayload);
 
@@ -156,4 +162,5 @@ export class LeaderboardEntryRelationalRepository extends LeaderboardEntryReposi
       lastActivity: new Date(result.lastActivity),
     }));
   }
+
 }

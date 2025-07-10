@@ -4,17 +4,25 @@ import { LeaderboardEntry } from './domain/leaderboard-entry';
 import { SubmitScoreDto } from './dto/submit-score.dto';
 import { QueryLeaderboardDto } from './dto/query-leaderboard.dto';
 import { IPaginationOptions } from '../utils/types/pagination-options';
+import { UserRepository } from '../users/infrastructure/persistence/user.repository';
 
 @Injectable()
 export class LeaderboardsService {
   constructor(
     private readonly leaderboardEntryRepository: LeaderboardEntryRepository,
+    private readonly userRepository: UserRepository,
   ) {}
 
-  async submitScore(submitScoreDto: SubmitScoreDto): Promise<LeaderboardEntry> {
+  async submitScore(submitScoreDto: SubmitScoreDto, userId: string | number): Promise<LeaderboardEntry> {
+    // Get the user to ensure username matches the authenticated user
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
     const scoreData = {
       leaderboardId: submitScoreDto.leaderboardId,
-      username: submitScoreDto.username,
+      userId, // Only store userId - no username
       score: submitScoreDto.score,
       metadata: submitScoreDto.metadata || {},
       timestamp: new Date(),
@@ -66,8 +74,18 @@ export class LeaderboardsService {
       limit: query.limit || 10,
     };
 
-    const data = await this.leaderboardEntryRepository.findByUsername(
-      username,
+    // Find user by username, then get entries by userId
+    const user = await this.userRepository.findByUsername(username);
+    if (!user) {
+      return {
+        data: [],
+        page: paginationOptions.page,
+        limit: paginationOptions.limit,
+      };
+    }
+
+    const data = await this.leaderboardEntryRepository.findByUserId(
+      user.id,
       paginationOptions,
     );
 
@@ -78,13 +96,20 @@ export class LeaderboardsService {
     };
   }
 
+
   async getUserScoreForLeaderboard(
     leaderboardId: string,
     username: string,
   ): Promise<LeaderboardEntry | null> {
-    return this.leaderboardEntryRepository.findByLeaderboardAndUsername(
+    // Find user by username, then get score by userId
+    const user = await this.userRepository.findByUsername(username);
+    if (!user) {
+      return null;
+    }
+
+    return this.leaderboardEntryRepository.findByLeaderboardAndUserId(
       leaderboardId,
-      username,
+      user.id,
     );
   }
 

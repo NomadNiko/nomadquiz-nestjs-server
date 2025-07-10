@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { LeaderboardEntry } from '../domain/leaderboard-entry';
+import { User } from '../../users/domain/user';
 
 export class LeaderboardEntryDto implements LeaderboardEntry {
   @ApiProperty()
@@ -10,10 +11,13 @@ export class LeaderboardEntryDto implements LeaderboardEntry {
   })
   leaderboardId: string;
 
-  @ApiProperty({
-    example: 'john_doe',
-  })
-  username: string;
+  @ApiProperty()
+  userId: number | string;
+
+  // username derived from user object when populated
+
+  @ApiProperty()
+  user?: User;
 
   @ApiProperty({
     example: 1500,

@@ -1,12 +1,23 @@
 import { LeaderboardEntry } from '../../../../domain/leaderboard-entry';
 import { LeaderboardEntrySchemaClass } from '../entities/leaderboard-entry.schema';
+import { UserMapper } from '../../../../../users/infrastructure/persistence/document/mappers/user.mapper';
+import { UserSchemaClass } from '../../../../../users/infrastructure/persistence/document/entities/user.schema';
+import { Types } from 'mongoose';
 
 export class LeaderboardEntryMapper {
   static toDomain(raw: LeaderboardEntrySchemaClass): LeaderboardEntry {
     const domainEntity = new LeaderboardEntry();
     domainEntity.id = raw._id.toString();
     domainEntity.leaderboardId = raw.leaderboardId;
-    domainEntity.username = raw.username;
+    
+    // Handle userId - stored as string
+    domainEntity.userId = raw.userId;
+
+    // Handle virtual populated user
+    if ((raw as any).user && !domainEntity.user) {
+      domainEntity.user = UserMapper.toDomain((raw as any).user);
+    }
+
     domainEntity.score = raw.score;
     domainEntity.metadata = raw.metadata;
     domainEntity.timestamp = raw.timestamp;
@@ -21,7 +32,8 @@ export class LeaderboardEntryMapper {
   ): Omit<LeaderboardEntrySchemaClass, '_id' | 'createdAt' | 'updatedAt'> {
     const persistenceEntity = new LeaderboardEntrySchemaClass();
     persistenceEntity.leaderboardId = domainEntity.leaderboardId;
-    persistenceEntity.username = domainEntity.username;
+    persistenceEntity.userId = domainEntity.userId as string;
+    // username not stored in persistence - derived from user relationship
     persistenceEntity.score = domainEntity.score;
     persistenceEntity.metadata = domainEntity.metadata;
     persistenceEntity.timestamp = domainEntity.timestamp;

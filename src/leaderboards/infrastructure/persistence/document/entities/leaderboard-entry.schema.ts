@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { now, HydratedDocument } from 'mongoose';
+import { now, HydratedDocument, Types } from 'mongoose';
 import { EntityDocumentHelper } from '../../../../../utils/document-entity-helper';
+import { UserSchemaClass } from '../../../../../users/infrastructure/persistence/document/entities/user.schema';
 
 export type LeaderboardEntrySchemaDocument =
   HydratedDocument<LeaderboardEntrySchemaClass>;
@@ -25,7 +26,9 @@ export class LeaderboardEntrySchemaClass extends EntityDocumentHelper {
     required: true,
     index: true,
   })
-  username: string;
+  userId: string;
+
+  // username removed - entries tied to userId only
 
   @Prop({
     type: Number,
@@ -57,9 +60,17 @@ export const LeaderboardEntrySchema = SchemaFactory.createForClass(
   LeaderboardEntrySchemaClass,
 );
 
+// Virtual populate for user data
+LeaderboardEntrySchema.virtual('user', {
+  ref: 'UserSchemaClass',
+  localField: 'userId',
+  foreignField: '_id',
+  justOne: true,
+});
+
 // Compound index for leaderboard queries and uniqueness per leaderboard
 LeaderboardEntrySchema.index(
-  { leaderboardId: 1, username: 1 },
+  { leaderboardId: 1, userId: 1 },
   { unique: true },
 );
 
@@ -67,4 +78,7 @@ LeaderboardEntrySchema.index(
 LeaderboardEntrySchema.index({ leaderboardId: 1, score: -1 });
 
 // Index for user's entries across all leaderboards
-LeaderboardEntrySchema.index({ username: 1, timestamp: -1 });
+LeaderboardEntrySchema.index({ userId: 1, timestamp: -1 });
+
+// Temporary index for username during migration
+LeaderboardEntrySchema.index({ username: 1 });

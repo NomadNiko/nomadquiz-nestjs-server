@@ -26,7 +26,7 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
   ): Promise<LeaderboardEntry> {
     const existingEntry = await this.leaderboardEntryModel.findOne({
       leaderboardId: data.leaderboardId,
-      username: data.username,
+      userId: data.userId,
     });
 
     if (existingEntry) {
@@ -52,19 +52,23 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
     }
   }
 
-  async findByLeaderboardAndUsername(
+  async findByLeaderboardAndUserId(
     leaderboardId: string,
-    username: string,
+    userId: LeaderboardEntry['userId'],
   ): Promise<NullableType<LeaderboardEntry>> {
-    const leaderboardEntryObject = await this.leaderboardEntryModel.findOne({
-      leaderboardId,
-      username,
-    });
+    const leaderboardEntryObject = await this.leaderboardEntryModel
+      .findOne({
+        leaderboardId,
+        userId: userId as string,
+      })
+      .populate('userId', 'username email firstName lastName photo')
+      .exec();
 
     return leaderboardEntryObject
       ? LeaderboardEntryMapper.toDomain(leaderboardEntryObject)
       : null;
   }
+
 
   async findByLeaderboard(
     leaderboardId: string,
@@ -72,6 +76,7 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
   ): Promise<LeaderboardEntry[]> {
     const entries = await this.leaderboardEntryModel
       .find({ leaderboardId })
+      .populate('userId', 'username email firstName lastName photo')
       .sort({ score: -1, timestamp: 1 }) // Highest score first, earliest timestamp for ties
       .limit(paginationOptions.limit)
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
@@ -80,12 +85,13 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
     return entries.map((entry) => LeaderboardEntryMapper.toDomain(entry));
   }
 
-  async findByUsername(
-    username: string,
+  async findByUserId(
+    userId: LeaderboardEntry['userId'],
     paginationOptions: IPaginationOptions,
   ): Promise<LeaderboardEntry[]> {
     const entries = await this.leaderboardEntryModel
-      .find({ username })
+      .find({ userId: userId as string })
+      .populate('userId', 'username email firstName lastName photo')
       .sort({ timestamp: -1 }) // Most recent first
       .limit(paginationOptions.limit)
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
@@ -93,6 +99,7 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
 
     return entries.map((entry) => LeaderboardEntryMapper.toDomain(entry));
   }
+
 
   async update(
     id: LeaderboardEntry['id'],
@@ -154,4 +161,5 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
 
     return aggregationResult;
   }
+
 }

@@ -6,15 +6,18 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   Unique,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { EntityRelationalHelper } from '../../../../../utils/relational-entity-helper';
+import { UserEntity } from '../../../../../users/infrastructure/persistence/relational/entities/user.entity';
 
 @Entity({
   name: 'leaderboard_entry',
 })
-@Unique(['leaderboardId', 'username'])
+@Unique(['leaderboardId', 'userId'])
 @Index(['leaderboardId', 'score'])
-@Index(['username', 'timestamp'])
+@Index(['userId', 'timestamp'])
 export class LeaderboardEntryEntity extends EntityRelationalHelper {
   @PrimaryGeneratedColumn()
   id: number;
@@ -24,8 +27,16 @@ export class LeaderboardEntryEntity extends EntityRelationalHelper {
   leaderboardId: string;
 
   @Index()
-  @Column({ type: String, length: 20 })
-  username: string;
+  @Column({ type: 'int' })
+  userId: number;
+
+  @ManyToOne(() => UserEntity, {
+    eager: false,
+  })
+  @JoinColumn({ name: 'userId' })
+  user?: UserEntity;
+
+  // username removed - entries tied to userId only
 
   @Column({ type: 'integer', unsigned: true })
   score: number;
