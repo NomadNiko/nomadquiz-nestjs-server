@@ -107,8 +107,8 @@ export class FriendsController {
   }> {
     const user = request.user as User;
     return this.friendsService.getPendingSentRequests(user.id, {
-      page: query.page ?? 1,
-      limit: query.limit ?? 10,
+      page: query.page as number,
+      limit: query.limit as number,
     });
   }
 
@@ -133,8 +133,8 @@ export class FriendsController {
   }> {
     const user = request.user as User;
     return this.friendsService.getPendingReceivedRequests(user.id, {
-      page: query.page ?? 1,
-      limit: query.limit ?? 10,
+      page: query.page as number,
+      limit: query.limit as number,
     });
   }
 
@@ -212,8 +212,8 @@ export class FriendsController {
   }> {
     const user = request.user as User;
     return this.friendsService.getFriendsList(user.id, {
-      page: query.page ?? 1,
-      limit: query.limit ?? 10,
+      page: query.page as number,
+      limit: query.limit as number,
     });
   }
 
@@ -237,8 +237,8 @@ export class FriendsController {
     hasPreviousPage: boolean;
   }> {
     return this.friendsService.getUserFriendsList(userId, {
-      page: query.page ?? 1,
-      limit: query.limit ?? 10,
+      page: query.page as number,
+      limit: query.limit as number,
     });
   }
 

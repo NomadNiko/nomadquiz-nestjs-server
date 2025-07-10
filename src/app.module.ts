@@ -29,6 +29,7 @@ import { MongooseConfigService } from './database/mongoose-config.service';
 import { DatabaseConfig } from './database/config/database-config.type';
 import { LeaderboardsModule } from './leaderboards/leaderboards.module';
 import { FriendsModule } from './friends/friends.module';
+import { ConversationsModule } from './conversations/conversations.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -96,6 +97,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     HomeModule,
     LeaderboardsModule,
     FriendsModule,
+    ConversationsModule,
   ],
 })
 export class AppModule {}
