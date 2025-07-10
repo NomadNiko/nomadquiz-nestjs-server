@@ -61,7 +61,7 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
         leaderboardId,
         userId: userId as string,
       })
-      .populate('userId', 'username email firstName lastName photo')
+      .populate('user', 'username email firstName lastName photo')
       .exec();
 
     return leaderboardEntryObject
@@ -76,7 +76,7 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
   ): Promise<LeaderboardEntry[]> {
     const entries = await this.leaderboardEntryModel
       .find({ leaderboardId })
-      .populate('userId', 'username email firstName lastName photo')
+      .populate('user', 'username email firstName lastName photo')
       .sort({ score: -1, timestamp: 1 }) // Highest score first, earliest timestamp for ties
       .limit(paginationOptions.limit)
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
@@ -91,7 +91,7 @@ export class LeaderboardEntryDocumentRepository extends LeaderboardEntryReposito
   ): Promise<LeaderboardEntry[]> {
     const entries = await this.leaderboardEntryModel
       .find({ userId: userId as string })
-      .populate('userId', 'username email firstName lastName photo')
+      .populate('user', 'username email firstName lastName photo')
       .sort({ timestamp: -1 }) // Most recent first
       .limit(paginationOptions.limit)
       .skip((paginationOptions.page - 1) * paginationOptions.limit)
