@@ -25,6 +25,7 @@ export class MessageSchemaClass extends EntityDocumentHelper {
     type: Types.ObjectId,
     ref: UserSchemaClass.name,
     required: false, // Optional for system messages
+    autopopulate: true,
   })
   senderId?: Types.ObjectId;
 

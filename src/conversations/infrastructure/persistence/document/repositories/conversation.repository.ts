@@ -69,22 +69,11 @@ export class ConversationDocumentRepository implements ConversationRepository {
   async findUserConversations(userId: string): Promise<Conversation[]> {
     const userObjectId = new Types.ObjectId(userId);
     
-    console.log('🔍 Finding conversations for user:', userId);
-    
     const entities = await this.conversationModel
       .find({ participants: userObjectId })
       .populate('participants')
       .sort({ lastMessageAt: -1 })
       .exec();
-      
-    console.log('🔍 Raw query result - first entity participants:', 
-      entities[0] ? entities[0].participants.map((p: any) => ({
-        id: p._id?.toString(),
-        email: p.email,
-        firstName: p.firstName,
-        isPopulated: !!p.email
-      })) : 'no entities'
-    );
       
     return entities.map((entity) => ConversationMapper.toDomain(entity));
   }

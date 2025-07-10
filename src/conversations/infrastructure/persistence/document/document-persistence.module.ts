@@ -9,6 +9,7 @@ import { ConversationRepository } from '../conversation.repository';
 import { ConversationDocumentRepository } from './repositories/conversation.repository';
 import { MessageRepository } from '../message.repository';
 import { MessageDocumentRepository } from './repositories/message.repository';
+import { UserSchemaClass, UserSchema } from '../../../../users/infrastructure/persistence/document/entities/user.schema';
 
 @Module({
   imports: [
@@ -20,6 +21,10 @@ import { MessageDocumentRepository } from './repositories/message.repository';
       {
         name: MessageSchemaClass.name,
         schema: MessageSchema,
+      },
+      {
+        name: UserSchemaClass.name,
+        schema: UserSchema,
       },
     ]),
   ],
