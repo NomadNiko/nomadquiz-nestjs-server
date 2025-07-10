@@ -61,8 +61,10 @@ export class ConversationsService {
   }
 
   async findUserConversations(userId: string): Promise<ConversationDto[]> {
+    console.log('🔍 SERVICE: findUserConversations called with userId:', userId);
     const conversations =
       await this.conversationRepository.findUserConversations(userId);
+    console.log('🔍 SERVICE: Got conversations count:', conversations.length);
 
     // Add last message to each conversation
     const conversationsWithLastMessage = await Promise.all(

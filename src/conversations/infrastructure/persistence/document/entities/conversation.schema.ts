@@ -15,7 +15,7 @@ export type ConversationSchemaDocument =
 })
 export class ConversationSchemaClass extends EntityDocumentHelper {
   @Prop({
-    type: [{ type: Types.ObjectId, ref: UserSchemaClass.name }],
+    type: [{ type: Types.ObjectId, ref: 'UserSchemaClass' }],
     required: true,
   })
   participants: Types.ObjectId[];

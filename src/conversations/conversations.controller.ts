@@ -72,7 +72,10 @@ export class ConversationsController {
     groups: ['me'],
   })
   async findUserConversations(@Request() req: any): Promise<ConversationDto[]> {
-    return this.conversationsService.findUserConversations(req.user.id);
+    console.log('🔍 CONTROLLER: findUserConversations called for user:', req.user.id);
+    const result = await this.conversationsService.findUserConversations(req.user.id);
+    console.log('🔍 CONTROLLER: Returning conversations count:', result.length);
+    return result;
   }
 
   @Get(':id')
