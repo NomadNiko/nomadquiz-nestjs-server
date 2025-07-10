@@ -64,7 +64,7 @@ export class ConversationsService {
     const conversations =
       await this.conversationRepository.findUserConversations(userId);
 
-    // Add last message to each conversation
+    // Add last message and full participant data to each conversation
     const conversationsWithLastMessage = await Promise.all(
       conversations.map(async (conversation) => {
         const lastMessage =
@@ -72,8 +72,17 @@ export class ConversationsService {
             conversation.id as string,
           );
 
+        // Get full participant data
+        const participantsWithData = await Promise.all(
+          conversation.participants.map(async (participant) => {
+            const fullUser = await this.usersService.findById(participant.id);
+            return fullUser || participant;
+          })
+        );
+
         const conversationDto = new ConversationDto();
         Object.assign(conversationDto, conversation);
+        conversationDto.participants = participantsWithData;
         conversationDto.lastMessage = lastMessage || undefined;
 
         return conversationDto;
@@ -104,6 +113,16 @@ export class ConversationsService {
         'Conversation not found or you do not have access to it',
       );
     }
+
+    // Get full participant data
+    const participantsWithData = await Promise.all(
+      conversation.participants.map(async (participant) => {
+        const fullUser = await this.usersService.findById(participant.id);
+        return fullUser || participant;
+      })
+    );
+
+    conversation.participants = participantsWithData;
 
     return conversation;
   }

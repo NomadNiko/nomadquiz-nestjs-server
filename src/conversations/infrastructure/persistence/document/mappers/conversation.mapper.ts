@@ -9,6 +9,7 @@ export class ConversationMapper {
   static toDomain(raw: ConversationSchemaClass): Conversation {
     const domainEntity = new Conversation();
     domainEntity.id = raw._id.toString();
+    
     domainEntity.participants = raw.participants
       ? (raw.participants as any[]).map((participant) => {
           if (participant && typeof participant === 'object' && participant.email) {

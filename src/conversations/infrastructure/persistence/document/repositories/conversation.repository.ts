@@ -29,7 +29,10 @@ export class ConversationDocumentRepository implements ConversationRepository {
     const savedEntity = await createdEntity.save();
     const populatedEntity = await this.conversationModel
       .findById(savedEntity._id)
-      .populate('participants')
+      .populate({
+        path: 'participants',
+        select: '_id email firstName lastName photo role status createdAt updatedAt username provider socialId'
+      })
       .exec();
       
     return populatedEntity
@@ -40,7 +43,10 @@ export class ConversationDocumentRepository implements ConversationRepository {
   async findById(id: Conversation['id']): Promise<NullableType<Conversation>> {
     const entity = await this.conversationModel
       .findById(id)
-      .populate('participants')
+      .populate({
+        path: 'participants',
+        select: '_id email firstName lastName photo role status createdAt updatedAt username provider socialId'
+      })
       .exec();
       
     return entity ? ConversationMapper.toDomain(entity) : null;
@@ -60,7 +66,10 @@ export class ConversationDocumentRepository implements ConversationRepository {
           $size: participantObjectIds.length,
         },
       })
-      .populate('participants')
+      .populate({
+        path: 'participants',
+        select: '_id email firstName lastName photo role status createdAt updatedAt username provider socialId'
+      })
       .exec();
       
     return entity ? ConversationMapper.toDomain(entity) : null;
@@ -71,7 +80,10 @@ export class ConversationDocumentRepository implements ConversationRepository {
     
     const entities = await this.conversationModel
       .find({ participants: userObjectId })
-      .populate('participants')
+      .populate({
+        path: 'participants',
+        select: '_id email firstName lastName photo role status createdAt updatedAt username provider socialId'
+      })
       .sort({ lastMessageAt: -1 })
       .exec();
       
@@ -84,7 +96,10 @@ export class ConversationDocumentRepository implements ConversationRepository {
   ): Promise<NullableType<Conversation>> {
     const entity = await this.conversationModel
       .findByIdAndUpdate(id, payload, { new: true })
-      .populate('participants')
+      .populate({
+        path: 'participants',
+        select: '_id email firstName lastName photo role status createdAt updatedAt username provider socialId'
+      })
       .exec();
       
     return entity ? ConversationMapper.toDomain(entity) : null;
