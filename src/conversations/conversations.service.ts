@@ -228,6 +228,15 @@ export class ConversationsService {
       throw new NotFoundException('Failed to update conversation');
     }
 
+    // Get full participant data (same as findUserConversations)
+    const participantsWithData = await Promise.all(
+      updatedConversation.participants.map(async (participant) => {
+        const fullUser = await this.usersService.findById(participant.id);
+        return fullUser || participant;
+      })
+    );
+
+    updatedConversation.participants = participantsWithData;
     return updatedConversation;
   }
 
@@ -277,6 +286,16 @@ export class ConversationsService {
     if (!updatedConversation) {
       throw new NotFoundException('Failed to update conversation');
     }
+
+    // Get full participant data (same as findUserConversations)
+    const participantsWithData = await Promise.all(
+      updatedConversation.participants.map(async (participant) => {
+        const fullUser = await this.usersService.findById(participant.id);
+        return fullUser || participant;
+      })
+    );
+
+    updatedConversation.participants = participantsWithData;
 
     // Create system message announcing the addition
     const userName =
@@ -333,6 +352,15 @@ export class ConversationsService {
       throw new NotFoundException('Failed to update conversation');
     }
 
+    // Get full participant data (same as findUserConversations)
+    const participantsWithData = await Promise.all(
+      updatedConversation.participants.map(async (participant) => {
+        const fullUser = await this.usersService.findById(participant.id);
+        return fullUser || participant;
+      })
+    );
+
+    updatedConversation.participants = participantsWithData;
     return updatedConversation;
   }
 }
