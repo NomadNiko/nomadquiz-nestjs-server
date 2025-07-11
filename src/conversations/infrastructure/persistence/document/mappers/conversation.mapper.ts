@@ -12,8 +12,8 @@ export class ConversationMapper {
     
     domainEntity.participants = raw.participants
       ? (raw.participants as any[]).map((participant) => {
-          if (participant && typeof participant === 'object' && participant.email) {
-            // This is a populated user document
+          if (participant && typeof participant === 'object' && participant._id) {
+            // This is a populated user document - has _id field
             return UserMapper.toDomain(participant);
           }
           // If it's just an ObjectId, create a minimal user object
