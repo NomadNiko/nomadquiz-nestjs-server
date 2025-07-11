@@ -94,8 +94,18 @@ export class ConversationDocumentRepository implements ConversationRepository {
     id: Conversation['id'],
     payload: Partial<Conversation>,
   ): Promise<NullableType<Conversation>> {
+    const updatePayload = { ...payload };
+    
+    // Handle participants conversion to ObjectIds the same way as create method
+    if (payload.participants && Array.isArray(payload.participants)) {
+      const participantObjectIds = payload.participants.map(
+        (p) => new Types.ObjectId(p.id as string),
+      );
+      updatePayload.participants = participantObjectIds as any;
+    }
+    
     const entity = await this.conversationModel
-      .findByIdAndUpdate(id, payload, { new: true })
+      .findByIdAndUpdate(id, updatePayload, { new: true })
       .populate({
         path: 'participants',
         select: '_id email firstName lastName photo role status createdAt updatedAt username provider socialId'

@@ -263,15 +263,13 @@ export class ConversationsService {
       throw new NotFoundException('Participant user not found');
     }
 
-    // Add participant to conversation - pass participant IDs array
-    const currentParticipantIds = conversation.participants.map((p) => p.id);
-    const updatedParticipantIds = [...currentParticipantIds, participantId];
+    // Add participant to conversation - pass User objects like in create method
+    const updatedParticipants = [...conversation.participants, participant];
     
-    // Create a new conversation object with the updated participant IDs
     const updatedConversation = await this.conversationRepository.update(
       conversationId,
       {
-        participants: updatedParticipantIds as any, // Repository will handle participant population
+        participants: updatedParticipants,
         lastMessageAt: new Date(),
       },
     );
@@ -319,15 +317,14 @@ export class ConversationsService {
       );
     }
 
-    // Remove participant from conversation - pass participant IDs array
-    const currentParticipantIds = conversation.participants.map((p) => p.id);
-    const updatedParticipantIds = currentParticipantIds.filter(
-      (id) => id !== participantId,
+    // Remove participant from conversation - pass User objects like in create method
+    const updatedParticipants = conversation.participants.filter(
+      (p) => p.id !== participantId,
     );
     const updatedConversation = await this.conversationRepository.update(
       conversationId,
       {
-        participants: updatedParticipantIds as any, // Repository will handle participant population
+        participants: updatedParticipants,
         lastMessageAt: new Date(),
       },
     );
