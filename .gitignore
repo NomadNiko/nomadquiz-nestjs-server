@@ -41,3 +41,4 @@ yarn.lock
 /ormconfig.json
 .codegpt
 CLAUDE.md
+scripts/

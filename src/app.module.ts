@@ -30,6 +30,7 @@ import { DatabaseConfig } from './database/config/database-config.type';
 import { LeaderboardsModule } from './leaderboards/leaderboards.module';
 import { FriendsModule } from './friends/friends.module';
 import { ConversationsModule } from './conversations/conversations.module';
+import { ExamsModule } from './exams/exams.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -98,6 +99,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     LeaderboardsModule,
     FriendsModule,
     ConversationsModule,
+    ExamsModule,
   ],
 })
 export class AppModule {}
