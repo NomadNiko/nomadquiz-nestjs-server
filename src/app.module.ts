@@ -31,6 +31,7 @@ import { LeaderboardsModule } from './leaderboards/leaderboards.module';
 import { FriendsModule } from './friends/friends.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { ExamsModule } from './exams/exams.module';
+import { StudyBanksModule } from './study-banks/study-banks.module';
 
 // <database-block>
 const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
@@ -100,6 +101,7 @@ const infrastructureDatabaseModule = (databaseConfig() as DatabaseConfig)
     FriendsModule,
     ConversationsModule,
     ExamsModule,
+    StudyBanksModule,
   ],
 })
 export class AppModule {}
