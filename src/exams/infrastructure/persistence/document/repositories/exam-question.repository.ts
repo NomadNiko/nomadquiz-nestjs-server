@@ -50,13 +50,31 @@ export class DocumentExamQuestionRepository implements ExamQuestionRepository {
 
     // Handle pagination vs randomization
     if (options?.randomize) {
-      // For randomization, use MongoDB's $sample aggregation
-      const pipeline = [
+      // For randomization, use enhanced randomization with multiple techniques
+      const requestedLimit = paginationOptions.limit || 10;
+      const totalCount = await this.examQuestionModel.countDocuments(where);
+      
+      if (totalCount === 0) {
+        return [];
+      }
+
+      const actualLimit = Math.min(requestedLimit, totalCount);
+
+      const pipeline: any[] = [
         { $match: where },
-        { $sample: { size: paginationOptions.limit || 10 } }
+        // Add a random field to each document for additional shuffle
+        { $addFields: { randomValue: { $rand: {} } } },
+        // Sort by the random field first, then sample
+        { $sort: { randomValue: 1 } },
+        { $sample: { size: actualLimit } },
+        // Remove the temporary random field
+        { $unset: 'randomValue' }
       ];
+      
       const entities = await this.examQuestionModel.aggregate(pipeline);
-      return entities.map((entity) => ExamQuestionMapper.toDomain(entity));
+      // Additional client-side shuffle for extra randomness
+      const shuffledEntities = this.shuffleArray(entities);
+      return shuffledEntities.map((entity) => ExamQuestionMapper.toDomain(entity));
     } else {
       // Standard pagination
       query = query
@@ -102,17 +120,48 @@ export class DocumentExamQuestionRepository implements ExamQuestionRepository {
     limit: number,
     topic?: string,
   ): Promise<ExamQuestion[]> {
-    const pipeline: any[] = [
-      { $match: { examType } }
-    ];
-
+    // First, get the total count to ensure we have enough questions
+    const matchStage: any = { examType };
     if (topic) {
-      pipeline[0].$match.topic = { $regex: topic, $options: 'i' };
+      matchStage.topic = { $regex: topic, $options: 'i' };
     }
 
-    pipeline.push({ $sample: { size: limit } });
+    const totalCount = await this.examQuestionModel.countDocuments(matchStage);
+    
+    if (totalCount === 0) {
+      return [];
+    }
+
+    // If we're requesting more questions than available, return all
+    const requestedLimit = Math.min(limit, totalCount);
+
+    // Use multiple randomization techniques for better distribution
+    const pipeline: any[] = [
+      { $match: matchStage },
+      // Add a random field to each document for additional shuffle
+      { $addFields: { randomValue: { $rand: {} } } },
+      // Sort by the random field first, then sample
+      { $sort: { randomValue: 1 } },
+      { $sample: { size: requestedLimit } },
+      // Remove the temporary random field
+      { $unset: 'randomValue' }
+    ];
 
     const entities = await this.examQuestionModel.aggregate(pipeline);
-    return entities.map((entity) => ExamQuestionMapper.toDomain(entity));
+    
+    // Additional client-side shuffle for extra randomness
+    const shuffledEntities = this.shuffleArray(entities);
+    
+    return shuffledEntities.map((entity) => ExamQuestionMapper.toDomain(entity));
+  }
+
+  // Fisher-Yates shuffle algorithm for additional randomization
+  private shuffleArray<T>(array: T[]): T[] {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 }
